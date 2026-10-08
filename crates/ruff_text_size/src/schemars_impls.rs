@@ -5,9 +5,11 @@
 //! for the `rome.json` configuration file and TypeScript types for the node.js
 //! bindings to the Workspace API
 
-use crate::{TextRange, TextSize};
+use alloc::borrow::Cow;
+
 use schemars::{JsonSchema, Schema, SchemaGenerator};
-use std::borrow::Cow;
+
+use crate::{TextRange, TextSize};
 
 impl JsonSchema for TextSize {
     fn schema_name() -> Cow<'static, str> {

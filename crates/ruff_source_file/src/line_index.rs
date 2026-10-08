@@ -1,9 +1,11 @@
-use std::fmt;
-use std::fmt::{Debug, Formatter};
-use std::num::{NonZeroUsize, ParseIntError};
-use std::ops::Deref;
-use std::str::FromStr;
-use std::sync::Arc;
+use alloc::{sync::Arc, vec::Vec};
+use core::{
+    fmt,
+    fmt::{Debug, Formatter},
+    num::{NonZeroUsize, ParseIntError},
+    ops::Deref,
+    str::FromStr,
+};
 
 use crate::{LineColumn, SourceLocation};
 use ruff_text_size::{TextLen, TextRange, TextSize};
@@ -673,7 +675,7 @@ impl Default for OneIndexed {
 
 impl fmt::Display for OneIndexed {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        std::fmt::Debug::fmt(&self.0.get(), f)
+        core::fmt::Debug::fmt(&self.0.get(), f)
     }
 }
 

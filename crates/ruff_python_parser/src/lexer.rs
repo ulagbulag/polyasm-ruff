@@ -6,7 +6,8 @@
 //!
 //! [Lexical analysis]: https://docs.python.org/3/reference/lexical_analysis.html
 
-use std::cmp::Ordering;
+use alloc::{format, string::ToString, vec::Vec};
+use core::cmp::Ordering;
 
 use unicode_ident::{is_xid_continue, is_xid_start};
 
@@ -1049,7 +1050,7 @@ impl<'src> Lexer<'src> {
     fn lex_number_radix(&mut self, radix: Radix) -> TokenKind {
         #[cfg(debug_assertions)]
         {
-            use std::debug_assert_matches;
+            use core::debug_assert_matches;
             debug_assert_matches!(self.cursor.previous().to_ascii_lowercase(), 'x' | 'o' | 'b');
         }
 

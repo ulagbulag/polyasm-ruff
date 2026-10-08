@@ -16,8 +16,11 @@
 //!
 //! Minimal Supported Rust Version: latest stable.
 
+#![cfg_attr(not(feature = "std"), no_std)]
 #![forbid(unsafe_code)]
 #![warn(missing_debug_implementations, missing_docs)]
+
+extern crate alloc;
 
 mod range;
 mod size;

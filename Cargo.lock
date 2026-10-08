@@ -3620,6 +3620,7 @@ dependencies = [
  "char_str",
  "compact_str",
  "get-size2",
+ "hashbrown 0.17.1",
  "is-macro",
  "memchr",
  "rustc-hash",
@@ -3629,6 +3630,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "spin",
  "thin-vec",
  "thiserror 2.0.20",
 ]
@@ -3643,6 +3645,7 @@ dependencies = [
  "datatest-stable",
  "drop_bomb",
  "get-size2",
+ "hashbrown 0.17.1",
  "insta",
  "itertools 0.15.0",
  "memchr",
@@ -3667,6 +3670,7 @@ dependencies = [
 name = "rustpython-ruff_python_trivia"
 version = "0.16.5"
 dependencies = [
+ "hashbrown 0.17.1",
  "itertools 0.15.0",
  "rustc-hash",
  "rustpython-ruff_source_file",
@@ -3682,6 +3686,7 @@ dependencies = [
  "memchr",
  "rustpython-ruff_text_size",
  "serde",
+ "spin",
 ]
 
 [[package]]
@@ -3971,6 +3976,12 @@ checksum = "ed4a172e483585ebbc7c7f7d1705ca7e3f94f606ed78caa14805673189fd5455"
 dependencies = [
  "anstream",
 ]
+
+[[package]]
+name = "spin"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "023a211cb3138dbc438680b32560ad89f699977624c9f8dbb95a47d5b4c07dd3"
 
 [[package]]
 name = "stable_deref_trait"

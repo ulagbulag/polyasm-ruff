@@ -298,6 +298,8 @@ def write_preamble(out: list[str]) -> None:
 
     use crate::name::Name;
     use crate::visitor::source_order::SourceOrderVisitor;
+    use alloc::boxed::Box;
+    use alloc::vec::Vec;
     """)
 
 
@@ -620,7 +622,7 @@ def write_anynoderef(out: list[str], ast: Ast) -> None:
     - `impl<'a> From<&'a TypeParamTypeVarTuple> for AnyNodeRef<'a>`
     - `impl Ranged for AnyNodeRef<'_>`
     - `impl HasNodeIndex for AnyNodeRef<'_>`
-    - `fn AnyNodeRef::as_ptr(&self) -> std::ptr::NonNull<()>`
+    - `fn AnyNodeRef::as_ptr(&self) -> core::ptr::NonNull<()>`
     - `fn AnyNodeRef::visit_source_order(self, visitor &mut impl SourceOrderVisitor)`
     """
 
@@ -721,12 +723,12 @@ def write_anynoderef(out: list[str], ast: Ast) -> None:
 
     out.append("""
         impl AnyNodeRef<'_> {
-            pub fn as_ptr(&self) -> std::ptr::NonNull<()> {
+            pub fn as_ptr(&self) -> core::ptr::NonNull<()> {
                 match self {
     """)
     for node in ast.all_nodes:
         out.append(
-            f"AnyNodeRef::{node.name}(node) => std::ptr::NonNull::from(*node).cast(),"
+            f"AnyNodeRef::{node.name}(node) => core::ptr::NonNull::from(*node).cast(),"
         )
     out.append("""
                 }
@@ -943,12 +945,12 @@ def write_root_anynoderef(out: list[str], ast: Ast) -> None:
         impl<'a> AnyRootNodeRef<'a> {
             /// Decomposes this reference into its root node kind and a type-erased pointer.
             #[inline]
-            pub fn into_raw_parts(self) -> (RootNodeKind, std::ptr::NonNull<()>) {
+            pub fn into_raw_parts(self) -> (RootNodeKind, core::ptr::NonNull<()>) {
                 match self {
     """)
     for name, _ in root_nodes:
         out.append(
-            f"""AnyRootNodeRef::{name}(node) => (RootNodeKind::{name}, std::ptr::NonNull::from(node).cast()),"""
+            f"""AnyRootNodeRef::{name}(node) => (RootNodeKind::{name}, core::ptr::NonNull::from(node).cast()),"""
         )
     out.append("""
                 }
@@ -965,7 +967,7 @@ def write_root_anynoderef(out: list[str], ast: Ast) -> None:
             /// - The pointed-to value must not be moved, dropped, or accessed mutably for `'a`.
             #[inline]
             #[expect(unsafe_code, reason = "reconstructs a type-erased AST reference")]
-            pub unsafe fn from_raw_parts(kind: RootNodeKind, pointer: std::ptr::NonNull<()>) -> Self {
+            pub unsafe fn from_raw_parts(kind: RootNodeKind, pointer: core::ptr::NonNull<()>) -> Self {
                 let pointer = pointer.as_ptr();
                 // SAFETY: The caller guarantees that `pointer` is readable as the exact root node
                 // type selected by `kind` and remains valid and immutable for `'a`.

@@ -1,4 +1,4 @@
-use std::iter;
+use core::iter;
 
 use ruff_python_trivia::{SimpleTokenKind, SimpleTokenizer};
 use ruff_text_size::{Ranged, TextRange};

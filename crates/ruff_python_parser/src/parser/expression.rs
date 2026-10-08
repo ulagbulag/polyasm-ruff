@@ -1,4 +1,5 @@
-use std::ops::Deref;
+use alloc::{borrow::ToOwned, boxed::Box, format, string::ToString, vec, vec::Vec};
+use core::ops::Deref;
 
 use bitflags::bitflags;
 use thin_vec::ThinVec;

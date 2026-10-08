@@ -15,10 +15,11 @@
 //! an implicit concatenation of string literals, as these expressions are considered to
 //! have the same shape in that they evaluate to the same value.
 
+use alloc::{borrow::Cow, boxed::Box, vec, vec::Vec};
+use core::hash::Hash;
+
 use crate as ast;
 use crate::{ConstantValue, Expr, Number};
-use std::borrow::Cow;
-use std::hash::Hash;
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ComparableBoolOp {

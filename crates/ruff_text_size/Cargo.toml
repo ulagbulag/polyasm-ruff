@@ -20,8 +20,10 @@ serde_test = { workspace = true }
 static_assertions = { workspace = true }
 
 [features]
-serde = ["dep:serde"]
-get-size = ["dep:get-size2"]
+default = ["std"]
+serde = ["dep:serde", "std"]
+get-size = ["dep:get-size2", "std"]
+std = []
 
 [lints]
 workspace = true

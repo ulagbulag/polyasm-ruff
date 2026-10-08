@@ -1,7 +1,9 @@
-use crate::find_newline;
+use core::ops::Add;
+
 use memchr::{memchr2, memrchr2};
 use ruff_text_size::{TextLen, TextRange, TextSize};
-use std::ops::Add;
+
+use crate::find_newline;
 
 /// Extension trait for [`str`] that provides methods for working with ranges of lines.
 pub trait LineRanges {

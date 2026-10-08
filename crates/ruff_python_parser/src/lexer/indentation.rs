@@ -1,8 +1,8 @@
-use static_assertions::assert_eq_size;
-use std::cmp::Ordering;
-use std::fmt::Debug;
+use alloc::vec::Vec;
+use core::{cmp::Ordering, fmt::Debug};
 
 use ruff_python_trivia::tab_offset_u32;
+use static_assertions::assert_eq_size;
 
 /// The column index of an indentation.
 ///

@@ -1,7 +1,25 @@
-use std::vec::Drain;
+use alloc::vec::{Drain, Vec};
 
-use drop_bomb::DebugDropBomb;
 use thin_vec::ThinVec;
+
+type DebugDropBomb = cfg_select! {
+    feature = "std" => drop_bomb::DebugDropBomb,
+    _ => InertDropBomb,
+};
+
+/// A drop bomb fires through `std::thread::panicking`, so a build without std carries
+/// an inert one.
+#[cfg(not(feature = "std"))]
+struct InertDropBomb;
+
+#[cfg(not(feature = "std"))]
+impl InertDropBomb {
+    const fn new(_message: &'static str) -> Self {
+        Self
+    }
+
+    const fn defuse(&mut self) {}
+}
 
 /// Reusable scratch storage that preserves entries belonging to outer parser frames.
 #[derive(Debug)]
@@ -71,6 +89,7 @@ impl<T> ScratchBuffer<T> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<T> Drop for ScratchBuffer<T> {
     fn drop(&mut self) {
         debug_assert!(

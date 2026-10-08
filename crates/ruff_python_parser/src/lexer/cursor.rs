@@ -1,4 +1,4 @@
-use std::str::Chars;
+use core::str::Chars;
 
 use ruff_text_size::{TextLen, TextSize};
 

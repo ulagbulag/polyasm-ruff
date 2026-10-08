@@ -1,6 +1,6 @@
-use ruff_text_size::TextSize;
+use core::fmt;
 
-use std::fmt;
+use ruff_text_size::TextSize;
 
 /// Enumerations of the valid prefixes a string literal can have.
 ///

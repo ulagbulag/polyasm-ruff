@@ -1,12 +1,11 @@
-use cmp::Ordering;
-
-use {
-    crate::TextSize,
-    std::{
-        cmp, fmt,
-        ops::{Add, AddAssign, Bound, Index, IndexMut, Range, RangeBounds, Sub, SubAssign},
-    },
+use alloc::string::String;
+use core::{
+    cmp::{self, Ordering},
+    fmt,
+    ops::{Add, AddAssign, Bound, Index, IndexMut, Range, RangeBounds, Sub, SubAssign},
 };
+
+use crate::TextSize;
 
 /// A range in text, represented as a pair of [`TextSize`][struct@TextSize].
 ///

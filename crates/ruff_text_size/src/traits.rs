@@ -1,7 +1,9 @@
-use std::sync::Arc;
-use {crate::TextRange, crate::TextSize, std::convert::TryInto};
+use alloc::{string::String, sync::Arc};
+use core::convert::TryInto;
 
-use priv_in_pub::Sealed;
+use crate::{TextRange, TextSize};
+
+use self::priv_in_pub::Sealed;
 mod priv_in_pub {
     pub trait Sealed {}
 }

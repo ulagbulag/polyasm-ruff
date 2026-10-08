@@ -1,5 +1,4 @@
-use std::iter::FusedIterator;
-use std::ops::Deref;
+use core::{iter::FusedIterator, ops::Deref};
 
 use memchr::{memchr2, memrchr2};
 use ruff_text_size::{TextLen, TextRange, TextSize};
@@ -99,7 +98,7 @@ impl<'a> Iterator for UniversalNewlineIterator<'a> {
         else {
             Line {
                 offset: self.offset,
-                text: std::mem::take(&mut self.text),
+                text: core::mem::take(&mut self.text),
             }
         };
 
@@ -143,7 +142,7 @@ impl DoubleEndedIterator for UniversalNewlineIterator<'_> {
             // Last line
             let offset = self.offset_back - self.text.text_len();
             Line {
-                text: std::mem::take(&mut self.text),
+                text: core::mem::take(&mut self.text),
                 offset,
             }
         };

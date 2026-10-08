@@ -1,4 +1,13 @@
-use std::sync::LazyLock;
+use alloc::{string::String, vec::Vec};
+
+type LazyLock<T> = cfg_select! {
+    feature = "std" => {
+        std::sync::LazyLock<T>
+    }
+    _ => {
+        spin::Lazy<T>
+    }
+};
 
 use memchr::memmem::Finder;
 use ruff_source_file::UniversalNewlineIterator;
@@ -74,7 +83,7 @@ impl ScriptTag {
             return None;
         }
 
-        let contents = std::str::from_utf8(contents).ok()?;
+        let contents = core::str::from_utf8(contents).ok()?;
         let contents = &contents[index..];
 
         let start = TextSize::try_from(index).ok()?;

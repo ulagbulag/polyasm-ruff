@@ -1,6 +1,14 @@
+use core::fmt;
+
 use aho_corasick::{AhoCorasick, AhoCorasickKind, Anchored, Input, MatchKind, StartKind};
-use std::fmt;
-use std::sync::LazyLock;
+type LazyLock<T> = cfg_select! {
+    feature = "std" => {
+        std::sync::LazyLock<T>
+    }
+    _ => {
+        spin::Lazy<T>
+    }
+};
 
 use ruff_text_size::{TextLen, TextRange};
 

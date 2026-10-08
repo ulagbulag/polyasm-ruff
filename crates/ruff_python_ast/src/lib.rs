@@ -1,4 +1,13 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+/// `is_macro::Is` names `::std::fmt::Debug`; in a no_std build `core` serves that path.
+#[cfg(not(feature = "std"))]
+extern crate core as std;
+
+#[cfg(feature = "std")]
 use std::ffi::OsStr;
+#[cfg(feature = "std")]
 use std::path::Path;
 
 pub use expression::*;
@@ -63,6 +72,7 @@ impl Default for SourceType {
     }
 }
 
+#[cfg(feature = "std")]
 impl<P: AsRef<Path>> From<P> for SourceType {
     fn from(path: P) -> Self {
         match path.as_ref().file_name() {
@@ -131,6 +141,7 @@ impl PySourceType {
         Some(ty)
     }
 
+    #[cfg(feature = "std")]
     pub fn try_from_path(path: impl AsRef<Path>) -> Option<Self> {
         path.as_ref()
             .extension()
@@ -155,6 +166,7 @@ impl PySourceType {
     }
 }
 
+#[cfg(feature = "std")]
 impl<P: AsRef<Path>> From<P> for PySourceType {
     fn from(path: P) -> Self {
         Self::try_from_path(path).unwrap_or_default()

@@ -1,3 +1,5 @@
+use alloc::{boxed::Box, format, string::ToString, vec, vec::Vec};
+
 use ruff_python_ast::name::Name;
 use ruff_python_ast::token::TokenKind;
 use ruff_python_ast::{
