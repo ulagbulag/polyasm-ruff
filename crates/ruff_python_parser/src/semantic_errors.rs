@@ -4,6 +4,9 @@
 //! [`SemanticSyntaxChecker::visit_stmt`] and [`SemanticSyntaxChecker::visit_expr`] methods should
 //! be called in a parent `Visitor`'s `visit_stmt` and `visit_expr` methods, respectively.
 
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec::Vec;
 use ruff_python_ast::{
     self as ast, Expr, ExprContext, IrrefutablePatternKind, Pattern, PythonVersion, Stmt, StmtExpr,
     StmtFunctionDef, StmtImportFrom,
@@ -12,8 +15,16 @@ use ruff_python_ast::{
     visitor::{Visitor, walk_expr, walk_stmt},
 };
 use ruff_text_size::{Ranged, TextRange, TextSize};
-use rustc_hash::{FxBuildHasher, FxHashSet};
-use std::fmt::Display;
+use rustc_hash::FxBuildHasher;
+cfg_select! {
+    feature = "std" => {
+        use rustc_hash::FxHashSet;
+    }
+    _ => {
+        type FxHashSet<T> = hashbrown::HashSet<T, rustc_hash::FxBuildHasher>;
+    }
+}
+use core::fmt::Display;
 
 #[derive(Debug, Default)]
 pub struct SemanticSyntaxChecker {
@@ -1319,20 +1330,23 @@ fn is_known_future_feature(name: &str) -> bool {
     )
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum LazyImportKind {
     Import,
     ImportFrom,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum LazyImportContext {
     Function,
     Class,
     TryExceptBlocks,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub struct SemanticSyntaxError {
     pub kind: SemanticSyntaxErrorKind,
     pub range: TextRange,
@@ -1340,7 +1354,7 @@ pub struct SemanticSyntaxError {
 }
 
 impl Display for SemanticSyntaxError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match &self.kind {
             SemanticSyntaxErrorKind::LateFutureImport => {
                 f.write_str("__future__ imports must be at the top of the file")
@@ -1512,7 +1526,8 @@ impl Ranged for SemanticSyntaxError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum SemanticSyntaxErrorKind {
     /// Represents a `lazy` import statement in an invalid context.
     LazyImportNotAllowed {
@@ -1974,7 +1989,8 @@ pub enum SemanticSyntaxErrorKind {
     ReturnInGenerator,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum AwaitOutsideAsyncFunctionKind {
     Await,
     AsyncFor,
@@ -1983,7 +1999,7 @@ pub enum AwaitOutsideAsyncFunctionKind {
 }
 
 impl Display for AwaitOutsideAsyncFunctionKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(match self {
             AwaitOutsideAsyncFunctionKind::Await => "`await`",
             AwaitOutsideAsyncFunctionKind::AsyncFor => "`async for`",
@@ -1993,7 +2009,8 @@ impl Display for AwaitOutsideAsyncFunctionKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum YieldOutsideFunctionKind {
     Yield,
     YieldFrom,
@@ -2007,7 +2024,7 @@ impl YieldOutsideFunctionKind {
 }
 
 impl Display for YieldOutsideFunctionKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(match self {
             YieldOutsideFunctionKind::Yield => "yield",
             YieldOutsideFunctionKind::YieldFrom => "yield from",
@@ -2016,7 +2033,8 @@ impl Display for YieldOutsideFunctionKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum InvalidExpressionPosition {
     TypeVarBound,
     TypeVarDefault,
@@ -2028,7 +2046,7 @@ pub enum InvalidExpressionPosition {
 }
 
 impl Display for InvalidExpressionPosition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(match self {
             InvalidExpressionPosition::TypeVarBound => "TypeVar bound",
             InvalidExpressionPosition::TypeVarDefault => "TypeVar default",
@@ -2041,7 +2059,8 @@ impl Display for InvalidExpressionPosition {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum InvalidExpressionKind {
     Yield,
     NamedExpr,
@@ -2049,7 +2068,7 @@ pub enum InvalidExpressionKind {
 }
 
 impl Display for InvalidExpressionKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(match self {
             InvalidExpressionKind::Yield => "yield expression",
             InvalidExpressionKind::NamedExpr => "named expression",
@@ -2058,7 +2077,8 @@ impl Display for InvalidExpressionKind {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum WriteToDebugKind {
     Store,
     Delete(PythonVersion),
@@ -2140,7 +2160,7 @@ impl Visitor<'_> for ReboundComprehensionVisitor<'_> {
             Expr::ListComp(_) | Expr::SetComp(_) | Expr::DictComp(_) | Expr::Generator(_)
                 if !self.direct_targets.is_empty() =>
             {
-                let direct_targets = std::mem::take(&mut self.direct_targets);
+                let direct_targets = core::mem::take(&mut self.direct_targets);
                 walk_expr(self, expr);
                 self.direct_targets = direct_targets;
                 return;
@@ -2654,8 +2674,8 @@ pub trait SemanticSyntaxContext {
 struct EscapeDefault<'a>(&'a str);
 
 impl Display for EscapeDefault<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        use std::fmt::Write;
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        use core::fmt::Write;
 
         for c in self.0.chars() {
             match c {

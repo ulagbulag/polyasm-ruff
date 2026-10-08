@@ -14,17 +14,20 @@ license = { workspace = true }
 name = "ruff_source_file"
 
 [dependencies]
-ruff_text_size = { workspace = true }
+ruff_text_size = { package = "rustpython-ruff_text_size", version = "0.16.5", path = "../ruff_text_size", default-features = false }
 
 get-size2 = { workspace = true, optional = true }
-memchr = { workspace = true }
+memchr = { version = "2.7.1", default-features = false }
 serde = { workspace = true, optional = true }
+spin = { version = "0.10.0", default-features = false, features = ["once"] }
 
 [dev-dependencies]
 
 [features]
-get-size = ["dep:get-size2", "ruff_text_size/get-size"]
-serde = ["dep:serde", "ruff_text_size/serde"]
+default = ["std"]
+get-size = ["dep:get-size2", "ruff_text_size/get-size", "std"]
+serde = ["dep:serde", "ruff_text_size/serde", "std"]
+std = ["memchr/std", "ruff_text_size/std"]
 
 [lints]
 workspace = true

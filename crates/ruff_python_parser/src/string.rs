@@ -1,7 +1,9 @@
 //! Parsing of string literals, bytes literals, and implicit string concatenation.
 
+use alloc::string::String;
+use alloc::vec::Vec;
 use bstr::ByteSlice;
-use std::fmt;
+use core::fmt;
 
 use ruff_python_ast::token::TokenKind;
 use ruff_python_ast::{self as ast, AnyStringFlags, AtomicNodeIndex, Expr, StringFlags};
@@ -176,8 +178,8 @@ impl<'src> StringParser<'src> {
             }
         }
         match p {
-            0xD800..=0xDFFF => Ok(std::char::REPLACEMENT_CHARACTER),
-            _ => std::char::from_u32(p).ok_or(LexicalError::new(
+            0xD800..=0xDFFF => Ok(core::char::REPLACEMENT_CHARACTER),
+            _ => core::char::from_u32(p).ok_or(LexicalError::new(
                 LexicalErrorType::UnicodeError,
                 TextRange::empty(self.position()),
             )),
@@ -198,7 +200,7 @@ impl<'src> StringParser<'src> {
         }
 
         // OK because radix_bytes is always going to be in the ASCII range.
-        let radix_str = std::str::from_utf8(&radix_bytes[..len]).expect("ASCII bytes");
+        let radix_str = core::str::from_utf8(&radix_bytes[..len]).expect("ASCII bytes");
         let value = u32::from_str_radix(radix_str, 8).unwrap();
         char::from_u32(value).unwrap()
     }

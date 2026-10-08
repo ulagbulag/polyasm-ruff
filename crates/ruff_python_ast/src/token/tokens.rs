@@ -1,9 +1,18 @@
-use std::{iter::FusedIterator, ops::Deref};
+use alloc::vec;
+use alloc::vec::Vec;
+use core::{iter::FusedIterator, ops::Deref};
 
 use super::{Token, TokenKind};
 use ruff_python_trivia::{CommentRanges, ParenthesizedExpressions, TriviaRanges};
 use ruff_text_size::{Ranged as _, TextRange, TextSize};
-use rustc_hash::FxHashSet;
+cfg_select! {
+    feature = "std" => {
+        use rustc_hash::FxHashSet;
+    }
+    _ => {
+        type FxHashSet<T> = hashbrown::HashSet<T, rustc_hash::FxBuildHasher>;
+    }
+}
 
 /// Tokens represents a vector of lexed [`Token`].
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -228,7 +237,7 @@ impl Tokens {
 
 impl IntoIterator for Tokens {
     type Item = Token;
-    type IntoIter = std::vec::IntoIter<Token>;
+    type IntoIter = alloc::vec::IntoIter<Token>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.raw.into_iter()
@@ -237,7 +246,7 @@ impl IntoIterator for Tokens {
 
 impl<'a> IntoIterator for &'a Tokens {
     type Item = &'a Token;
-    type IntoIter = std::slice::Iter<'a, Token>;
+    type IntoIter = core::slice::Iter<'a, Token>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
@@ -353,7 +362,7 @@ impl From<&Tokens> for TriviaRanges {
 /// [`iter_with_context`]: Tokens::iter_with_context
 #[derive(Debug, Clone)]
 pub struct TokenIterWithContext<'a> {
-    inner: std::slice::Iter<'a, Token>,
+    inner: core::slice::Iter<'a, Token>,
     nesting: u32,
 }
 

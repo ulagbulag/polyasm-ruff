@@ -1,8 +1,17 @@
-use std::fmt::{Debug, Formatter};
-use std::ops::Deref;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::fmt::{Debug, Formatter};
+use core::ops::Deref;
 
 use itertools::Itertools;
-use rustc_hash::FxHashSet;
+cfg_select! {
+    feature = "std" => {
+        use rustc_hash::FxHashSet;
+    }
+    _ => {
+        type FxHashSet<T> = hashbrown::HashSet<T, rustc_hash::FxBuildHasher>;
+    }
+}
 
 use ruff_source_file::LineRanges;
 use ruff_text_size::{Ranged, TextRange, TextSize};
@@ -40,7 +49,7 @@ impl TriviaRanges {
 }
 
 impl Debug for TriviaRanges {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         self.comments.fmt(f)
     }
 }
@@ -80,11 +89,11 @@ impl CommentRanges {
         self.raw
             .binary_search_by(|range| {
                 if target.intersect(*range).is_some() {
-                    std::cmp::Ordering::Equal
+                    core::cmp::Ordering::Equal
                 } else if range.end() < target.start() {
-                    std::cmp::Ordering::Less
+                    core::cmp::Ordering::Less
                 } else {
-                    std::cmp::Ordering::Greater
+                    core::cmp::Ordering::Greater
                 }
             })
             .is_ok()
@@ -261,14 +270,14 @@ impl Deref for CommentRanges {
 }
 
 impl Debug for CommentRanges {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         f.debug_tuple("CommentRanges").field(&self.raw).finish()
     }
 }
 
 impl<'a> IntoIterator for &'a CommentRanges {
     type Item = TextRange;
-    type IntoIter = std::iter::Copied<std::slice::Iter<'a, TextRange>>;
+    type IntoIter = core::iter::Copied<core::slice::Iter<'a, TextRange>>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.raw.iter().copied()

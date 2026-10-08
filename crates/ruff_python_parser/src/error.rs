@@ -1,4 +1,6 @@
-use std::fmt::{self, Display};
+use alloc::boxed::Box;
+use alloc::string::String;
+use core::fmt::{self, Display};
 
 use ruff_python_ast::PythonVersion;
 use ruff_python_ast::token::TokenKind;
@@ -8,13 +10,14 @@ use crate::string::InterpolatedStringKind;
 
 /// Represents represent errors that occur during parsing and are
 /// returned by the `parse_*` functions.
-#[derive(Debug, PartialEq, Eq, Clone, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub struct ParseError {
     pub error: ParseErrorType,
     pub location: TextRange,
 }
 
-impl std::ops::Deref for ParseError {
+impl core::ops::Deref for ParseError {
     type Target = ParseErrorType;
 
     fn deref(&self) -> &Self::Target {
@@ -22,14 +25,14 @@ impl std::ops::Deref for ParseError {
     }
 }
 
-impl std::error::Error for ParseError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for ParseError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         Some(&self.error)
     }
 }
 
 impl fmt::Display for ParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, "{} at byte range {:?}", self.error, self.location)
     }
 }
@@ -56,7 +59,8 @@ impl ParseError {
 }
 
 /// Represents the different types of errors that can occur during parsing of an f-string or t-string.
-#[derive(Debug, Clone, PartialEq, Eq, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum InterpolatedStringErrorType {
     /// Expected a right brace after an opened left brace.
     UnclosedLbrace,
@@ -76,8 +80,8 @@ pub enum InterpolatedStringErrorType {
     NewlineInFormatSpec,
 }
 
-impl std::fmt::Display for InterpolatedStringErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl core::fmt::Display for InterpolatedStringErrorType {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             Self::UnclosedLbrace => write!(f, "expecting `}}`"),
             Self::InvalidConversionFlag => write!(f, "invalid conversion character"),
@@ -102,7 +106,8 @@ impl std::fmt::Display for InterpolatedStringErrorType {
 }
 
 /// Represents the different types of errors that can occur during parsing.
-#[derive(Debug, PartialEq, Eq, Clone, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Clone)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum ParseErrorType {
     /// An unexpected error occurred.
     OtherError(String),
@@ -216,10 +221,10 @@ impl ParseErrorType {
     }
 }
 
-impl std::error::Error for ParseErrorType {}
+impl core::error::Error for ParseErrorType {}
 
-impl std::fmt::Display for ParseErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl core::fmt::Display for ParseErrorType {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             ParseErrorType::OtherError(msg) => f.write_str(msg),
             ParseErrorType::StringAnnotationError(msg) => f.write_str(msg),
@@ -366,7 +371,7 @@ impl LexicalError {
     }
 }
 
-impl std::ops::Deref for LexicalError {
+impl core::ops::Deref for LexicalError {
     type Target = LexicalErrorType;
 
     fn deref(&self) -> &Self::Target {
@@ -374,14 +379,14 @@ impl std::ops::Deref for LexicalError {
     }
 }
 
-impl std::error::Error for LexicalError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for LexicalError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         Some(self.error())
     }
 }
 
-impl std::fmt::Display for LexicalError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl core::fmt::Display for LexicalError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(
             f,
             "{} at byte offset {}",
@@ -392,7 +397,8 @@ impl std::fmt::Display for LexicalError {
 }
 
 /// Represents the different types of errors that can occur during lexing.
-#[derive(Debug, Clone, PartialEq, Eq, get_size2::GetSize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum LexicalErrorType {
     // TODO: Can probably be removed, the places it is used seem to be able
     // to use the `UnicodeError` variant instead.
@@ -424,7 +430,7 @@ pub enum LexicalErrorType {
     OtherError(Box<str>),
 }
 
-impl std::error::Error for LexicalErrorType {}
+impl core::error::Error for LexicalErrorType {}
 
 impl LexicalErrorType {
     pub(crate) fn from_interpolated_string_error(
@@ -438,8 +444,8 @@ impl LexicalErrorType {
     }
 }
 
-impl std::fmt::Display for LexicalErrorType {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl core::fmt::Display for LexicalErrorType {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         match self {
             Self::StringError => write!(f, "Got unexpected string"),
             Self::FStringError(error) => write!(f, "f-string: {error}"),
@@ -476,7 +482,8 @@ impl std::fmt::Display for LexicalErrorType {
 ///
 /// An example of a version-related error is the use of a `match` statement before Python 3.10, when
 /// it was first introduced. See [`UnsupportedSyntaxErrorKind`] for other kinds of errors.
-#[derive(Debug, PartialEq, Clone, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub struct UnsupportedSyntaxError {
     pub kind: UnsupportedSyntaxErrorKind,
     pub range: TextRange,
@@ -491,14 +498,16 @@ impl Ranged for UnsupportedSyntaxError {
 }
 
 /// The type of tuple unpacking for [`UnsupportedSyntaxErrorKind::StarTuple`].
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum StarTupleKind {
     Return,
     Yield,
 }
 
 /// The type of PEP 701 f-string error for [`UnsupportedSyntaxErrorKind::Pep701FString`].
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum FStringKind {
     Backslash,
     Comment,
@@ -508,7 +517,8 @@ pub enum FStringKind {
 
 /// The type of PEP 798 unpacking-comprehension error for
 /// [`UnsupportedSyntaxErrorKind::UnpackingInComprehension`].
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum ComprehensionUnpackingKind {
     IterableInList,
     IterableInSet,
@@ -516,14 +526,16 @@ pub enum ComprehensionUnpackingKind {
     DictInDict,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum UnparenthesizedNamedExprKind {
     SequenceIndex,
     SetLiteral,
     SetComprehension,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum UnsupportedSyntaxErrorKind {
     Match,
     Walrus,
@@ -1056,7 +1068,8 @@ impl Display for UnsupportedSyntaxError {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, get_size2::GetSize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub enum RelaxedDecoratorError {
     CallExpression,
     Other(&'static str),

@@ -1,5 +1,5 @@
-use std::num::NonZeroU32;
-use std::sync::atomic::{AtomicU32, Ordering};
+use core::num::NonZeroU32;
+use core::sync::atomic::{AtomicU32, Ordering};
 
 /// An AST node that has an index.
 pub trait HasNodeIndex {
@@ -143,8 +143,8 @@ impl From<u32> for NodeIndex {
     }
 }
 
-impl std::fmt::Debug for NodeIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for NodeIndex {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         if *self == Self::NONE {
             f.debug_tuple("NodeIndex(None)").finish()
         } else {
@@ -185,26 +185,26 @@ impl Default for AtomicNodeIndex {
     }
 }
 
-impl std::fmt::Debug for AtomicNodeIndex {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Debug::fmt(&self.load(), f)
+impl core::fmt::Debug for AtomicNodeIndex {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Debug::fmt(&self.load(), f)
     }
 }
 
-impl std::hash::Hash for AtomicNodeIndex {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+impl core::hash::Hash for AtomicNodeIndex {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.load().hash(state);
     }
 }
 
 impl PartialOrd for AtomicNodeIndex {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for AtomicNodeIndex {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Self) -> core::cmp::Ordering {
         self.load().cmp(&other.load())
     }
 }

@@ -1,5 +1,7 @@
 //! Utilities for parsing Python docstrings.
 
+use alloc::string::String;
+
 /// Extract the leading words from a line of text within a Python docstring.
 pub fn leading_words(line: &str) -> &str {
     let line = line.trim();

@@ -5,13 +5,24 @@ use crate::generated::{
     ExprBytesLiteral, ExprCall, ExprDict, ExprFString, ExprList, ExprName, ExprSet,
     ExprStringLiteral, ExprTString, ExprTuple, PatternMatchAs, PatternMatchOr, StmtClassDef,
 };
-use std::borrow::Cow;
-use std::fmt;
-use std::fmt::Debug;
-use std::iter::FusedIterator;
-use std::ops::{Deref, DerefMut};
-use std::slice::{Iter, IterMut};
-use std::sync::OnceLock;
+use alloc::borrow::Cow;
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::fmt;
+use core::fmt::Debug;
+use core::iter::FusedIterator;
+use core::ops::{Deref, DerefMut};
+use core::slice::{Iter, IterMut};
+cfg_select! {
+    feature = "std" => {
+        use std::sync::OnceLock;
+    }
+    _ => {
+        use spin::Once as OnceLock;
+    }
+}
 
 use bitflags::bitflags;
 use thin_vec::ThinVec;
@@ -217,7 +228,7 @@ impl ExprDict {
         self.items[n].value()
     }
 
-    pub fn iter(&self) -> std::slice::Iter<'_, DictItem> {
+    pub fn iter(&self) -> core::slice::Iter<'_, DictItem> {
         self.items.iter()
     }
 
@@ -231,7 +242,7 @@ impl ExprDict {
 }
 
 impl<'a> IntoIterator for &'a ExprDict {
-    type IntoIter = std::slice::Iter<'a, DictItem>;
+    type IntoIter = core::slice::Iter<'a, DictItem>;
     type Item = &'a DictItem;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -324,7 +335,7 @@ impl FusedIterator for DictValueIterator<'_> {}
 impl ExactSizeIterator for DictValueIterator<'_> {}
 
 impl ExprSet {
-    pub fn iter(&self) -> std::slice::Iter<'_, Expr> {
+    pub fn iter(&self) -> core::slice::Iter<'_, Expr> {
         self.elts.iter()
     }
 
@@ -338,7 +349,7 @@ impl ExprSet {
 }
 
 impl<'a> IntoIterator for &'a ExprSet {
-    type IntoIter = std::slice::Iter<'a, Expr>;
+    type IntoIter = core::slice::Iter<'a, Expr>;
     type Item = &'a Expr;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -439,8 +450,8 @@ pub struct DebugText {
     expression_end: u32,
 }
 
-impl std::fmt::Debug for DebugText {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for DebugText {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("DebugText")
             .field("leading", &self.leading())
             .field("expression", &self.expression())
@@ -538,7 +549,7 @@ impl FStringValue {
     /// Returns a slice of all the [`FStringPart`]s contained in this value.
     pub fn as_slice(&self) -> &[FStringPart] {
         match &self.inner {
-            FStringValueInner::Single(part) => std::slice::from_ref(part),
+            FStringValueInner::Single(part) => core::slice::from_ref(part),
             FStringValueInner::Concatenated(parts) => parts,
         }
     }
@@ -546,7 +557,7 @@ impl FStringValue {
     /// Returns a mutable slice of all the [`FStringPart`]s contained in this value.
     fn as_mut_slice(&mut self) -> &mut [FStringPart] {
         match &mut self.inner {
-            FStringValueInner::Single(part) => std::slice::from_mut(part),
+            FStringValueInner::Single(part) => core::slice::from_mut(part),
             FStringValueInner::Concatenated(parts) => parts,
         }
     }
@@ -733,7 +744,7 @@ impl TStringValue {
     /// Returns a slice of all the [`TString`]s contained in this value.
     pub fn as_slice(&self) -> &[TString] {
         match &self.inner {
-            TStringValueInner::Single(part) => std::slice::from_ref(part),
+            TStringValueInner::Single(part) => core::slice::from_ref(part),
             TStringValueInner::Concatenated(parts) => parts,
         }
     }
@@ -741,7 +752,7 @@ impl TStringValue {
     /// Returns a mutable slice of all the [`TString`]s contained in this value.
     fn as_mut_slice(&mut self) -> &mut [TString] {
         match &mut self.inner {
-            TStringValueInner::Single(part) => std::slice::from_mut(part),
+            TStringValueInner::Single(part) => core::slice::from_mut(part),
             TStringValueInner::Concatenated(parts) => parts,
         }
     }
@@ -891,7 +902,7 @@ pub struct DisplayFlags<'a> {
     contents: &'a str,
 }
 
-impl std::fmt::Display for DisplayFlags<'_> {
+impl core::fmt::Display for DisplayFlags<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -1444,7 +1455,7 @@ impl StringLiteralValue {
     /// Returns a slice of all the [`StringLiteral`] parts contained in this value.
     pub fn as_slice(&self) -> &[StringLiteral] {
         match &self.inner {
-            StringLiteralValueInner::Single(value) => std::slice::from_ref(value),
+            StringLiteralValueInner::Single(value) => core::slice::from_ref(value),
             StringLiteralValueInner::Concatenated(value) => value.strings.as_slice(),
         }
     }
@@ -1452,7 +1463,7 @@ impl StringLiteralValue {
     /// Returns a mutable slice of all the [`StringLiteral`] parts contained in this value.
     fn as_mut_slice(&mut self) -> &mut [StringLiteral] {
         match &mut self.inner {
-            StringLiteralValueInner::Single(value) => std::slice::from_mut(value),
+            StringLiteralValueInner::Single(value) => core::slice::from_mut(value),
             StringLiteralValueInner::Concatenated(value) => value.strings.as_mut_slice(),
         }
     }
@@ -1799,7 +1810,7 @@ impl From<StringLiteral> for Expr {
 
 /// An internal representation of [`StringLiteral`] that represents an
 /// implicitly concatenated string.
-#[derive(Clone)]
+#[cfg_attr(feature = "std", derive(Clone))]
 #[cfg_attr(feature = "get-size", derive(get_size2::GetSize))]
 struct ConcatenatedStringLiteral {
     /// The individual [`StringLiteral`] parts that make up the concatenated string.
@@ -1808,13 +1819,28 @@ struct ConcatenatedStringLiteral {
     value: OnceLock<Box<str>>,
 }
 
+/// A copy starts with an empty `spin::Once`, which fills on first use.
+#[cfg(not(feature = "std"))]
+impl Clone for ConcatenatedStringLiteral {
+    fn clone(&self) -> Self {
+        Self {
+            strings: self.strings.clone(),
+            value: OnceLock::new(),
+        }
+    }
+}
+
 impl ConcatenatedStringLiteral {
     /// Extracts a string slice containing the entire concatenated string.
     fn to_str(&self) -> &str {
-        self.value.get_or_init(|| {
+        let init = || {
             let concatenated: String = self.strings.iter().map(StringLiteral::as_str).collect();
             concatenated.into_boxed_str()
-        })
+        };
+        cfg_select! {
+            feature = "std" => self.value.get_or_init(init),
+            _ => self.value.call_once(init),
+        }
     }
 }
 
@@ -1891,7 +1917,7 @@ impl BytesLiteralValue {
     /// Returns a slice of all the [`BytesLiteral`] parts contained in this value.
     pub fn as_slice(&self) -> &[BytesLiteral] {
         match &self.inner {
-            BytesLiteralValueInner::Single(value) => std::slice::from_ref(value),
+            BytesLiteralValueInner::Single(value) => core::slice::from_ref(value),
             BytesLiteralValueInner::Concatenated(value) => value.as_slice(),
         }
     }
@@ -1899,7 +1925,7 @@ impl BytesLiteralValue {
     /// Returns a mutable slice of all the [`BytesLiteral`] parts contained in this value.
     fn as_mut_slice(&mut self) -> &mut [BytesLiteral] {
         match &mut self.inner {
-            BytesLiteralValueInner::Single(value) => std::slice::from_mut(value),
+            BytesLiteralValueInner::Single(value) => core::slice::from_mut(value),
             BytesLiteralValueInner::Concatenated(value) => value.as_mut_slice(),
         }
     }
@@ -2567,7 +2593,7 @@ impl ExprName {
 }
 
 impl ExprList {
-    pub fn iter(&self) -> std::slice::Iter<'_, Expr> {
+    pub fn iter(&self) -> core::slice::Iter<'_, Expr> {
         self.elts.iter()
     }
 
@@ -2581,7 +2607,7 @@ impl ExprList {
 }
 
 impl<'a> IntoIterator for &'a ExprList {
-    type IntoIter = std::slice::Iter<'a, Expr>;
+    type IntoIter = core::slice::Iter<'a, Expr>;
     type Item = &'a Expr;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -2590,7 +2616,7 @@ impl<'a> IntoIterator for &'a ExprList {
 }
 
 impl ExprTuple {
-    pub fn iter(&self) -> std::slice::Iter<'_, Expr> {
+    pub fn iter(&self) -> core::slice::Iter<'_, Expr> {
         self.elts.iter()
     }
 
@@ -2604,7 +2630,7 @@ impl ExprTuple {
 }
 
 impl<'a> IntoIterator for &'a ExprTuple {
-    type IntoIter = std::slice::Iter<'a, Expr>;
+    type IntoIter = core::slice::Iter<'a, Expr>;
     type Item = &'a Expr;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -3758,7 +3784,7 @@ impl Deref for TypeParams {
 
 impl<'a> IntoIterator for &'a TypeParams {
     type Item = &'a TypeParam;
-    type IntoIter = std::slice::Iter<'a, TypeParam>;
+    type IntoIter = core::slice::Iter<'a, TypeParam>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.type_params.iter()
@@ -3921,7 +3947,7 @@ impl PartialEq<String> for Identifier {
     }
 }
 
-impl std::ops::Deref for Identifier {
+impl core::ops::Deref for Identifier {
     type Target = str;
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -3936,9 +3962,9 @@ impl AsRef<str> for Identifier {
     }
 }
 
-impl std::fmt::Display for Identifier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(&self.id, f)
+impl core::fmt::Display for Identifier {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(&self.id, f)
     }
 }
 

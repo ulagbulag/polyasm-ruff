@@ -1,4 +1,5 @@
-use std::borrow::Cow;
+use alloc::borrow::Cow;
+use alloc::string::String;
 
 use ruff_source_file::LineRanges;
 use ruff_text_size::{TextRange, TextSize};
@@ -18,7 +19,7 @@ pub fn expand_tabs(source: &str) -> Cow<'_, str> {
         match character {
             '\t' => {
                 let spaces = tab_offset(column, TAB_SIZE);
-                expanded.extend(std::iter::repeat_n(' ', spaces));
+                expanded.extend(core::iter::repeat_n(' ', spaces));
                 column += spaces;
             }
             '\r' | '\n' => {

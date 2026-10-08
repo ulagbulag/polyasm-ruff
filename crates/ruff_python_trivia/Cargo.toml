@@ -14,12 +14,17 @@ license = { workspace = true }
 name = "ruff_python_trivia"
 
 [dependencies]
-ruff_source_file = { workspace = true }
-ruff_text_size = { workspace = true }
+ruff_source_file = { package = "rustpython-ruff_source_file", version = "0.16.5", path = "../ruff_source_file", default-features = false }
+ruff_text_size = { package = "rustpython-ruff_text_size", version = "0.16.5", path = "../ruff_text_size", default-features = false }
 
-itertools = { workspace = true }
-rustc-hash = { workspace = true }
+hashbrown = { workspace = true }
+itertools = { version = "0.15.0", default-features = false, features = ["use_alloc"] }
+rustc-hash = { version = "2.0.0", default-features = false }
 unicode-ident = { workspace = true }
+
+[features]
+default = ["std"]
+std = ["itertools/use_std", "ruff_source_file/std", "ruff_text_size/std", "rustc-hash/std"]
 
 [lints]
 workspace = true

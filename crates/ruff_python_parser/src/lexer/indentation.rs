@@ -1,6 +1,7 @@
+use alloc::vec::Vec;
+use core::cmp::Ordering;
+use core::fmt::Debug;
 use static_assertions::assert_eq_size;
-use std::cmp::Ordering;
-use std::fmt::Debug;
 
 use ruff_python_trivia::tab_offset_u32;
 

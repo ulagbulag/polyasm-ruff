@@ -1,4 +1,10 @@
-use std::fmt::{Display, Write};
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::fmt::{Display, Write};
 
 use ruff_python_ast::name::Name;
 use ruff_python_ast::token::TokenKind;
@@ -1265,7 +1271,7 @@ impl<'src> Parser<'src> {
                 let mut parsed_expr =
                     parser.parse_expression_list(ExpressionContext::yield_or_starred_bitwise_or());
 
-                std::mem::swap(&mut value, &mut parsed_expr);
+                core::mem::swap(&mut value, &mut parsed_expr);
 
                 targets.push(parsed_expr.expr);
             });
@@ -4095,7 +4101,7 @@ enum Clause {
 }
 
 impl Display for Clause {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Clause::If => write!(f, "`if` statement"),
             Clause::Else => write!(f, "`else` clause"),

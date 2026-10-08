@@ -1,4 +1,5 @@
-use std::{fmt, str::FromStr};
+use alloc::boxed::Box;
+use core::{fmt, str::FromStr};
 
 /// Representation of a Python version.
 ///
@@ -110,7 +111,7 @@ impl From<(u8, u8)> for PythonVersion {
 }
 
 impl TryFrom<(i64, i64)> for PythonVersion {
-    type Error = std::num::TryFromIntError;
+    type Error = core::num::TryFromIntError;
 
     fn try_from(value: (i64, i64)) -> Result<Self, Self::Error> {
         let (major, minor) = value;
@@ -133,9 +134,9 @@ pub enum PythonVersionDeserializationError {
     #[error("Invalid python version `{0}`: expected `major.minor`")]
     WrongPeriodNumber(Box<str>),
     #[error("Invalid major version `{0}`: {1}")]
-    InvalidMajorVersion(Box<str>, #[source] std::num::ParseIntError),
+    InvalidMajorVersion(Box<str>, #[source] core::num::ParseIntError),
     #[error("Invalid minor version `{0}`: {1}")]
-    InvalidMinorVersion(Box<str>, #[source] std::num::ParseIntError),
+    InvalidMinorVersion(Box<str>, #[source] core::num::ParseIntError),
 }
 
 impl TryFrom<(&str, &str)> for PythonVersion {
@@ -209,8 +210,8 @@ mod schemars {
     use serde_json::Value;
 
     impl JsonSchema for PythonVersion {
-        fn schema_name() -> std::borrow::Cow<'static, str> {
-            std::borrow::Cow::Borrowed("PythonVersion")
+        fn schema_name() -> alloc::borrow::Cow<'static, str> {
+            alloc::borrow::Cow::Borrowed("PythonVersion")
         }
 
         fn json_schema(_gen: &mut SchemaGenerator) -> Schema {

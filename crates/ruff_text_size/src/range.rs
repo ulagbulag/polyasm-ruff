@@ -1,8 +1,9 @@
+use alloc::string::String;
 use cmp::Ordering;
 
 use {
     crate::TextSize,
-    std::{
+    core::{
         cmp, fmt,
         ops::{Add, AddAssign, Bound, Index, IndexMut, Range, RangeBounds, Sub, SubAssign},
     },

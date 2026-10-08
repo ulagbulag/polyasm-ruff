@@ -79,7 +79,7 @@ impl<'a> EnclosingSuite<'a> {
     }
 }
 
-impl std::ops::Deref for EnclosingSuite<'_> {
+impl core::ops::Deref for EnclosingSuite<'_> {
     type Target = [Stmt];
 
     fn deref(&self) -> &Self::Target {

@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ruff_python_ast::token::{Token, TokenFlags, TokenKind};
 use ruff_text_size::{Ranged, TextRange, TextSize};
 

@@ -1,4 +1,10 @@
-use std::ops::Deref;
+use alloc::borrow::ToOwned;
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::ToString;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::ops::Deref;
 
 use bitflags::bitflags;
 use thin_vec::ThinVec;

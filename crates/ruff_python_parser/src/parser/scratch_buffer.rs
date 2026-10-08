@@ -1,6 +1,24 @@
-use std::vec::Drain;
+use alloc::vec::Drain;
+use alloc::vec::Vec;
 
-use drop_bomb::DebugDropBomb;
+cfg_select! {
+    feature = "std" => {
+        use drop_bomb::DebugDropBomb;
+    }
+    _ => {
+        /// A drop bomb fires through `std::thread::panicking`, so a build without std carries
+        /// an inert one.
+        struct DebugDropBomb;
+
+        impl DebugDropBomb {
+            const fn new(_message: &'static str) -> Self {
+                Self
+            }
+
+            const fn defuse(&mut self) {}
+        }
+    }
+}
 use thin_vec::ThinVec;
 
 /// Reusable scratch storage that preserves entries belonging to outer parser frames.
@@ -71,6 +89,7 @@ impl<T> ScratchBuffer<T> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<T> Drop for ScratchBuffer<T> {
     fn drop(&mut self) {
         debug_assert!(

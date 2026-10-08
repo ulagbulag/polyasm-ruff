@@ -1,5 +1,6 @@
-use std::fmt::Debug;
-use std::str::FromStr;
+use alloc::boxed::Box;
+use core::fmt::Debug;
+use core::str::FromStr;
 
 /// A Python integer literal. Represents both small (fits in an `i64`) and large integers.
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -7,7 +8,7 @@ use std::str::FromStr;
 pub struct Int(Number);
 
 impl FromStr for Int {
-    type Err = std::num::ParseIntError;
+    type Err = core::num::ParseIntError;
 
     /// Parse an [`Int`] from a string.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -16,7 +17,7 @@ impl FromStr for Int {
             Err(err) => {
                 if matches!(
                     err.kind(),
-                    std::num::IntErrorKind::PosOverflow | std::num::IntErrorKind::NegOverflow
+                    core::num::IntErrorKind::PosOverflow | core::num::IntErrorKind::NegOverflow
                 ) {
                     Ok(Int::big(s))
                 } else {
@@ -49,13 +50,13 @@ impl Int {
         number: &str,
         radix: u32,
         token: &str,
-    ) -> Result<Self, std::num::ParseIntError> {
+    ) -> Result<Self, core::num::ParseIntError> {
         match u64::from_str_radix(number, radix) {
             Ok(value) => Ok(Int::small(value)),
             Err(err) => {
                 if matches!(
                     err.kind(),
-                    std::num::IntErrorKind::PosOverflow | std::num::IntErrorKind::NegOverflow
+                    core::num::IntErrorKind::PosOverflow | core::num::IntErrorKind::NegOverflow
                 ) {
                     Ok(Int::big(token))
                 } else {
@@ -138,15 +139,15 @@ impl Int {
     }
 }
 
-impl std::fmt::Display for Int {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Int {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
 impl Debug for Int {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        std::fmt::Display::fmt(self, f)
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Display::fmt(self, f)
     }
 }
 
@@ -225,8 +226,8 @@ enum Number {
     Big(Box<str>),
 }
 
-impl std::fmt::Display for Number {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Number {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Number::Small(value) => write!(f, "{value}"),
             Number::Big(value) => write!(f, "{value}"),

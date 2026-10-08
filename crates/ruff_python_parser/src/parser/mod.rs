@@ -1,6 +1,11 @@
-use std::borrow::Cow;
-use std::cmp::Ordering;
-use std::str::FromStr;
+use alloc::borrow::Cow;
+use alloc::boxed::Box;
+use alloc::format;
+use alloc::string::String;
+use alloc::string::ToString;
+use alloc::vec::Vec;
+use core::cmp::Ordering;
+use core::str::FromStr;
 
 use bitflags::bitflags;
 use ruff_python_ast::name::Name;
@@ -11,7 +16,14 @@ use ruff_python_ast::{
 };
 use ruff_python_trivia::is_python_whitespace;
 use ruff_text_size::{Ranged, TextRange, TextSize};
-use rustc_hash::FxHashSet;
+cfg_select! {
+    feature = "std" => {
+        use rustc_hash::FxHashSet;
+    }
+    _ => {
+        type FxHashSet<T> = hashbrown::HashSet<T, rustc_hash::FxBuildHasher>;
+    }
+}
 use thin_vec::ThinVec;
 use unicode_normalization::UnicodeNormalization;
 
@@ -62,7 +74,9 @@ impl NameInterner {
 
 // Stack probes access thread-local state, so avoid them while recursive parser calls remain
 // shallow. `STACK_RED_ZONE` must cover the stack used before the first deferred probe.
+#[cfg(feature = "std")]
 const STACK_RED_ZONE: usize = 100 * 1024;
+#[cfg(feature = "std")]
 const STACK_SIZE: usize = 1024 * 1024;
 const MAX_UNCHECKED_RECURSION_DEPTH: usize = 20;
 
@@ -176,16 +190,19 @@ impl<'src> Parser<'src> {
 
     #[cold]
     fn grow_stack<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
-        stacker::maybe_grow(STACK_RED_ZONE, STACK_SIZE, || f(self))
+        cfg_select! {
+            feature = "std" => stacker::maybe_grow(STACK_RED_ZONE, STACK_SIZE, || f(self)),
+            _ => f(self),
+        }
     }
 
     /// Consumes the [`Parser`] and returns the parsed [`Parsed`].
     pub(crate) fn parse(mut self) -> Parsed<Mod> {
-        let syntax = stacker::maybe_grow(STACK_RED_ZONE, STACK_SIZE, || match self.options.mode {
+        let syntax = self.grow_stack(|parser| match parser.options.mode {
             Mode::Expression | Mode::ParenthesizedExpression => {
-                Mod::Expression(self.parse_single_expression())
+                Mod::Expression(parser.parse_single_expression())
             }
-            Mode::Module | Mode::Ipython => Mod::Module(self.parse_module()),
+            Mode::Module | Mode::Ipython => Mod::Module(parser.parse_module()),
         });
 
         self.finish(syntax)
@@ -567,7 +584,7 @@ impl<'src> Parser<'src> {
                         || value.chars().last().is_none_or(is_python_whitespace)
                         || !matches!(chars.peek(), None | Some('\n' | '\r'))
                     {
-                        value.extend(std::iter::repeat_n('?', question_count));
+                        value.extend(core::iter::repeat_n('?', question_count));
                         continue;
                     }
 

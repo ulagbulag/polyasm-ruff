@@ -17,8 +17,11 @@
 
 use crate as ast;
 use crate::{ConstantValue, Expr, Number};
-use std::borrow::Cow;
-use std::hash::Hash;
+use alloc::borrow::Cow;
+use alloc::boxed::Box;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::hash::Hash;
 
 #[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub enum ComparableBoolOp {

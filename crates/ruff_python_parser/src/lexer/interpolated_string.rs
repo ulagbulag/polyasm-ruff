@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use ruff_python_ast::StringFlags;
 
 use crate::string::InterpolatedStringKind;

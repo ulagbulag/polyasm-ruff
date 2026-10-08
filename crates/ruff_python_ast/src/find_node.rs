@@ -1,8 +1,9 @@
 use crate::AnyNodeRef;
 use crate::visitor::source_order::{SourceOrderVisitor, TraversalSignal, walk_node};
+use alloc::vec::Vec;
+use core::fmt;
+use core::fmt::Formatter;
 use ruff_text_size::{Ranged, TextRange};
-use std::fmt;
-use std::fmt::Formatter;
 
 /// Returns the node with a minimal range that fully contains `range`.
 ///

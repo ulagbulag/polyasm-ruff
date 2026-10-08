@@ -1,7 +1,20 @@
-use std::cmp::Ordering;
-use std::fmt::{Debug, Display, Formatter};
-use std::hash::Hash;
-use std::sync::{Arc, OnceLock};
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+
+use alloc::boxed::Box;
+use alloc::sync::Arc;
+use core::cmp::Ordering;
+use core::fmt::{Debug, Display, Formatter};
+use core::hash::Hash;
+cfg_select! {
+    feature = "std" => {
+        use std::sync::OnceLock;
+    }
+    _ => {
+        use spin::Once as OnceLock;
+    }
+}
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -144,7 +157,7 @@ pub struct SourceFile {
 }
 
 impl Debug for SourceFile {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("SourceFile")
             .field("name", &self.name())
             .field("code", &self.source_text())
@@ -167,9 +180,11 @@ impl SourceFile {
     }
 
     pub fn index(&self) -> &LineIndex {
-        self.inner
-            .line_index
-            .get_or_init(|| LineIndex::from_source_text(self.source_text()))
+        let init = || LineIndex::from_source_text(self.source_text());
+        cfg_select! {
+            feature = "std" => self.inner.line_index.get_or_init(init),
+            _ => self.inner.line_index.call_once(init),
+        }
     }
 
     /// Returns the source code.
@@ -212,7 +227,7 @@ impl PartialEq for SourceFileInner {
 impl Eq for SourceFileInner {}
 
 impl Hash for SourceFileInner {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: core::hash::Hasher>(&self, state: &mut H) {
         self.name.hash(state);
         self.code.hash(state);
     }
@@ -241,7 +256,7 @@ impl Default for LineColumn {
 }
 
 impl Debug for LineColumn {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("LineColumn")
             .field("line", &self.line.get())
             .field("column", &self.column.get())
@@ -249,8 +264,8 @@ impl Debug for LineColumn {
     }
 }
 
-impl std::fmt::Display for LineColumn {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for LineColumn {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         write!(f, "{line}:{column}", line = self.line, column = self.column)
     }
 }
@@ -286,7 +301,7 @@ pub enum SourceRow {
 }
 
 impl Display for SourceRow {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
             SourceRow::Notebook { cell, line } => write!(f, "cell {cell}, line {line}"),
             SourceRow::SourceFile { line } => write!(f, "line {line}"),

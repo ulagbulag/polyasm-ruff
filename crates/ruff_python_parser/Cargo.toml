@@ -14,22 +14,41 @@ license = { workspace = true }
 name = "ruff_python_parser"
 
 [dependencies]
-ruff_python_ast = { workspace = true, features = ["get-size"] }
-ruff_python_trivia = { workspace = true }
-ruff_text_size = { workspace = true, features = ["get-size"] }
+ruff_python_ast = { package = "rustpython-ruff_python_ast", version = "0.16.5", path = "../ruff_python_ast", default-features = false }
+ruff_python_trivia = { package = "rustpython-ruff_python_trivia", version = "0.16.5", path = "../ruff_python_trivia", default-features = false }
+ruff_text_size = { package = "rustpython-ruff_text_size", version = "0.16.5", path = "../ruff_text_size", default-features = false }
 
 bitflags = { workspace = true }
-bstr = { workspace = true }
-drop_bomb = { workspace = true }
-get-size2 = { workspace = true }
-memchr = { workspace = true }
-rustc-hash = { workspace = true }
+bstr = { version = "1.9.1", default-features = false, features = ["alloc", "unicode"] }
+drop_bomb = { workspace = true, optional = true }
+get-size2 = { workspace = true, optional = true }
+hashbrown = { workspace = true }
+memchr = { version = "2.7.1", default-features = false }
+rustc-hash = { version = "2.0.0", default-features = false }
 static_assertions = { workspace = true }
-stacker = { workspace = true }
-thin-vec = { workspace = true }
+stacker = { workspace = true, optional = true }
+thin-vec = { version = "0.2.14", default-features = false }
 unicode-ident = { workspace = true }
-unicode-normalization = { workspace = true }
-unicode_names2 = { workspace = true }
+unicode-normalization = { version = "0.1.23", default-features = false }
+unicode_names2 = { version = "1.2.2", features = ["no_std"] }
+
+[features]
+default = ["std"]
+std = [
+    "dep:drop_bomb",
+    "dep:get-size2",
+    "dep:stacker",
+    "bstr/std",
+    "memchr/std",
+    "ruff_python_ast/get-size",
+    "ruff_python_ast/std",
+    "ruff_python_trivia/std",
+    "ruff_text_size/get-size",
+    "ruff_text_size/std",
+    "rustc-hash/std",
+    "thin-vec/std",
+    "unicode-normalization/std",
+]
 
 [dev-dependencies]
 ruff_annotate_snippets = { workspace = true }

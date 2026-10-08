@@ -3,6 +3,8 @@
 
 use crate::name::Name;
 use crate::visitor::source_order::SourceOrderVisitor;
+use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 /// See also [mod](https://docs.python.org/3/library/ast.html#ast.mod)
 #[derive(Clone, Debug, PartialEq)]
@@ -7167,105 +7169,107 @@ impl crate::HasNodeIndex for AnyNodeRef<'_> {
 }
 
 impl AnyNodeRef<'_> {
-    pub fn as_ptr(&self) -> std::ptr::NonNull<()> {
+    pub fn as_ptr(&self) -> core::ptr::NonNull<()> {
         match self {
-            AnyNodeRef::ModModule(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ModExpression(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtFunctionDef(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtClassDef(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtReturn(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtDelete(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtTypeAlias(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtAssign(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtAugAssign(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtAnnAssign(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtFor(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtWhile(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtIf(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtWith(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtMatch(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtRaise(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtTry(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtAssert(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtImport(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtImportFrom(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtGlobal(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtNonlocal(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtExpr(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtPass(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtBreak(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtContinue(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StmtIpyEscapeCommand(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprBoolOp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprNamed(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprBinOp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprUnaryOp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprLambda(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprIf(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprDict(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprSet(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprListComp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprSetComp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprDictComp(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprGenerator(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprAwait(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprYield(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprYieldFrom(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprCompare(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprCall(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprFString(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprTString(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprStringLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprBytesLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprNumberLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprBooleanLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprNoneLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprEllipsisLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprConstant(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprAttribute(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprSubscript(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprStarred(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprName(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprList(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprTuple(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprSlice(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExprIpyEscapeCommand(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ExceptHandlerExceptHandler(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::InterpolatedElement(node) => std::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ModModule(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ModExpression(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtFunctionDef(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtClassDef(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtReturn(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtDelete(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtTypeAlias(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtAssign(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtAugAssign(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtAnnAssign(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtFor(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtWhile(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtIf(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtWith(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtMatch(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtRaise(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtTry(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtAssert(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtImport(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtImportFrom(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtGlobal(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtNonlocal(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtExpr(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtPass(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtBreak(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtContinue(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StmtIpyEscapeCommand(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprBoolOp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprNamed(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprBinOp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprUnaryOp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprLambda(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprIf(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprDict(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprSet(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprListComp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprSetComp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprDictComp(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprGenerator(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprAwait(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprYield(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprYieldFrom(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprCompare(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprCall(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprFString(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprTString(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprStringLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprBytesLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprNumberLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprBooleanLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprNoneLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprEllipsisLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprConstant(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprAttribute(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprSubscript(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprStarred(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprName(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprList(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprTuple(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprSlice(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExprIpyEscapeCommand(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ExceptHandlerExceptHandler(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::InterpolatedElement(node) => core::ptr::NonNull::from(*node).cast(),
             AnyNodeRef::InterpolatedStringLiteralElement(node) => {
-                std::ptr::NonNull::from(*node).cast()
+                core::ptr::NonNull::from(*node).cast()
             }
-            AnyNodeRef::PatternMatchValue(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchSingleton(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchSequence(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchMapping(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchClass(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchStar(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchAs(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternMatchOr(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::TypeParamTypeVar(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::TypeParamTypeVarTuple(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::TypeParamParamSpec(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::InterpolatedStringFormatSpec(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternArguments(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::PatternKeyword(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Comprehension(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Arguments(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Parameters(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Parameter(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ParameterWithDefault(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Keyword(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Alias(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::WithItem(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::MatchCase(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Decorator(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::ElifElseClause(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::TypeParams(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::FString(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::TString(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::StringLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::BytesLiteral(node) => std::ptr::NonNull::from(*node).cast(),
-            AnyNodeRef::Identifier(node) => std::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchValue(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchSingleton(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchSequence(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchMapping(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchClass(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchStar(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchAs(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternMatchOr(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::TypeParamTypeVar(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::TypeParamTypeVarTuple(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::TypeParamParamSpec(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::InterpolatedStringFormatSpec(node) => {
+                core::ptr::NonNull::from(*node).cast()
+            }
+            AnyNodeRef::PatternArguments(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::PatternKeyword(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Comprehension(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Arguments(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Parameters(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Parameter(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ParameterWithDefault(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Keyword(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Alias(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::WithItem(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::MatchCase(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Decorator(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::ElifElseClause(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::TypeParams(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::FString(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::TString(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::StringLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::BytesLiteral(node) => core::ptr::NonNull::from(*node).cast(),
+            AnyNodeRef::Identifier(node) => core::ptr::NonNull::from(*node).cast(),
         }
     }
 }
@@ -8935,104 +8939,105 @@ impl crate::HasNodeIndex for AnyRootNodeRef<'_> {
 impl<'a> AnyRootNodeRef<'a> {
     /// Decomposes this reference into its root node kind and a type-erased pointer.
     #[inline]
-    pub fn into_raw_parts(self) -> (RootNodeKind, std::ptr::NonNull<()>) {
+    pub fn into_raw_parts(self) -> (RootNodeKind, core::ptr::NonNull<()>) {
         match self {
-            AnyRootNodeRef::Mod(node) => (RootNodeKind::Mod, std::ptr::NonNull::from(node).cast()),
+            AnyRootNodeRef::Mod(node) => (RootNodeKind::Mod, core::ptr::NonNull::from(node).cast()),
             AnyRootNodeRef::Stmt(node) => {
-                (RootNodeKind::Stmt, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::Stmt, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::Expr(node) => {
-                (RootNodeKind::Expr, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::Expr, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::ExceptHandler(node) => (
                 RootNodeKind::ExceptHandler,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::InterpolatedStringElement(node) => (
                 RootNodeKind::InterpolatedStringElement,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Pattern(node) => {
-                (RootNodeKind::Pattern, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::Pattern, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::TypeParam(node) => (
                 RootNodeKind::TypeParam,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::InterpolatedStringFormatSpec(node) => (
                 RootNodeKind::InterpolatedStringFormatSpec,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::PatternArguments(node) => (
                 RootNodeKind::PatternArguments,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::PatternKeyword(node) => (
                 RootNodeKind::PatternKeyword,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Comprehension(node) => (
                 RootNodeKind::Comprehension,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Arguments(node) => (
                 RootNodeKind::Arguments,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Parameters(node) => (
                 RootNodeKind::Parameters,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Parameter(node) => (
                 RootNodeKind::Parameter,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::ParameterWithDefault(node) => (
                 RootNodeKind::ParameterWithDefault,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Keyword(node) => {
-                (RootNodeKind::Keyword, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::Keyword, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::Alias(node) => {
-                (RootNodeKind::Alias, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::Alias, core::ptr::NonNull::from(node).cast())
             }
-            AnyRootNodeRef::WithItem(node) => {
-                (RootNodeKind::WithItem, std::ptr::NonNull::from(node).cast())
-            }
+            AnyRootNodeRef::WithItem(node) => (
+                RootNodeKind::WithItem,
+                core::ptr::NonNull::from(node).cast(),
+            ),
             AnyRootNodeRef::MatchCase(node) => (
                 RootNodeKind::MatchCase,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Decorator(node) => (
                 RootNodeKind::Decorator,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::ElifElseClause(node) => (
                 RootNodeKind::ElifElseClause,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::TypeParams(node) => (
                 RootNodeKind::TypeParams,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::FString(node) => {
-                (RootNodeKind::FString, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::FString, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::TString(node) => {
-                (RootNodeKind::TString, std::ptr::NonNull::from(node).cast())
+                (RootNodeKind::TString, core::ptr::NonNull::from(node).cast())
             }
             AnyRootNodeRef::StringLiteral(node) => (
                 RootNodeKind::StringLiteral,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::BytesLiteral(node) => (
                 RootNodeKind::BytesLiteral,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
             AnyRootNodeRef::Identifier(node) => (
                 RootNodeKind::Identifier,
-                std::ptr::NonNull::from(node).cast(),
+                core::ptr::NonNull::from(node).cast(),
             ),
         }
     }
@@ -9048,7 +9053,7 @@ impl<'a> AnyRootNodeRef<'a> {
     /// - The pointed-to value must not be moved, dropped, or accessed mutably for `'a`.
     #[inline]
     #[expect(unsafe_code, reason = "reconstructs a type-erased AST reference")]
-    pub unsafe fn from_raw_parts(kind: RootNodeKind, pointer: std::ptr::NonNull<()>) -> Self {
+    pub unsafe fn from_raw_parts(kind: RootNodeKind, pointer: core::ptr::NonNull<()>) -> Self {
         let pointer = pointer.as_ptr();
         // SAFETY: The caller guarantees that `pointer` is readable as the exact root node
         // type selected by `kind` and remains valid and immutable for `'a`.

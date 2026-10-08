@@ -63,11 +63,16 @@
 //! [parsing]: https://en.wikipedia.org/wiki/Parsing
 //! [lexer]: crate::lexer
 
+#![cfg_attr(not(feature = "std"), no_std)]
+
+extern crate alloc;
+
 pub use crate::error::{
     InterpolatedStringErrorType, LexicalErrorType, ParseError, ParseErrorType,
     UnsupportedSyntaxError, UnsupportedSyntaxErrorKind,
 };
 pub use crate::parser::ParseOptions;
+use alloc::vec::Vec;
 
 use crate::parser::Parser;
 
@@ -384,7 +389,8 @@ pub fn parse_cells_unchecked(
 }
 
 /// Represents the parsed source code.
-#[derive(Debug, PartialEq, Clone, get_size2::GetSize)]
+#[derive(Debug, PartialEq, Clone)]
+#[cfg_attr(feature = "std", derive(get_size2::GetSize))]
 pub struct Parsed<T> {
     syntax: T,
     tokens: Tokens,
@@ -588,7 +594,7 @@ pub enum Mode {
     Ipython,
 }
 
-impl std::str::FromStr for Mode {
+impl core::str::FromStr for Mode {
     type Err = ModeParseError;
     fn from_str(s: &str) -> Result<Self, ModeParseError> {
         match s {
@@ -618,8 +624,8 @@ impl AsMode for PySourceType {
 #[derive(Debug)]
 pub struct ModeParseError;
 
-impl std::fmt::Display for ModeParseError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl core::fmt::Display for ModeParseError {
+    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
         write!(f, r#"mode must be "exec", "eval", "ipython", or "single""#)
     }
 }

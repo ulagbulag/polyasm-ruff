@@ -21,38 +21,55 @@ name = "ruff_python_ast"
 # Not published: RustPython does not use the cache and salsa features.
 # ruff_cache = { workspace = true, optional = true }
 # ruff_macros = { workspace = true, optional = true }
-ruff_python_trivia = { workspace = true }
-ruff_source_file = { workspace = true }
-ruff_text_size = { workspace = true }
+ruff_python_trivia = { package = "rustpython-ruff_python_trivia", version = "0.16.5", path = "../ruff_python_trivia", default-features = false }
+ruff_source_file = { package = "rustpython-ruff_source_file", version = "0.16.5", path = "../ruff_source_file", default-features = false }
+ruff_text_size = { package = "rustpython-ruff_text_size", version = "0.16.5", path = "../ruff_text_size", default-features = false }
 
-aho-corasick = { workspace = true }
-arrayvec = { workspace = true }
+aho-corasick = { version = "1.1.3", default-features = false, features = ["perf-literal"] }
+arrayvec = { version = "0.7.6", default-features = false }
 bitflags = { workspace = true }
-char_str = { workspace = true }
-compact_str = { workspace = true }
+char_str = { version = "0.0.2", default-features = false }
+compact_str = { version = "0.10.0", default-features = false }
 get-size2 = { workspace = true, optional = true }
+hashbrown = { workspace = true }
 is-macro = { workspace = true }
-memchr = { workspace = true }
-rustc-hash = { workspace = true }
+memchr = { version = "2.7.1", default-features = false }
+rustc-hash = { version = "2.0.0", default-features = false }
 # salsa = { workspace = true, optional = true }
 schemars = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 serde_json = { workspace = true, optional = true }
-thiserror = { workspace = true }
-thin-vec = { workspace = true }
+spin = { version = "0.10.0", default-features = false, features = ["lazy", "once"] }
+thiserror = { version = "2.0.0", default-features = false }
+thin-vec = { version = "0.2.14", default-features = false }
 
 [features]
-schemars = ["dep:schemars", "dep:serde_json"]
+default = ["std"]
+schemars = ["dep:schemars", "dep:serde_json", "std"]
 # cache = ["dep:ruff_cache", "dep:ruff_macros"]
 serde = [
+    "std",
     "dep:serde",
     "ruff_text_size/serde",
     "char_str/serde",
     "compact_str/serde",
     "thin-vec/serde",
 ]
-get-size = ["dep:get-size2", "char_str/get-size", "ruff_text_size/get-size"]
+get-size = ["dep:get-size2", "char_str/get-size", "ruff_text_size/get-size", "std"]
 # salsa = ["dep:salsa"]
+std = [
+    "aho-corasick/std",
+    "arrayvec/std",
+    "char_str/std",
+    "compact_str/std",
+    "memchr/std",
+    "ruff_python_trivia/std",
+    "ruff_source_file/std",
+    "ruff_text_size/std",
+    "rustc-hash/std",
+    "thiserror/std",
+    "thin-vec/std",
+]
 
 [lints]
 workspace = true
